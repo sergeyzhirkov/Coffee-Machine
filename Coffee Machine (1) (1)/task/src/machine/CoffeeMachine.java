@@ -1,5 +1,8 @@
 package machine;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class CoffeeMachine {
@@ -9,41 +12,20 @@ public class CoffeeMachine {
     private static int disposableCups = 9;
     private static int countMoney = 550;
     private static Scanner scanner = new Scanner(System.in);
+    private static boolean isExit = false;
+    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
 
-
-//        System.out.println("Write how many ml of water the coffee machine has: ");
-//        int water = scanner.nextInt();
-//        System.out.println("Write how many ml of milk the coffee machine has: ");
-//        int milk = scanner.nextInt();
-//        System.out.println("Write how many grams of coffee beans the coffee machine has: ");
-//        int coffeeBeans = scanner.nextInt();
-//        System.out.println("Write how many cups of coffee you will need: ");
-//        int cupsCount = scanner.nextInt();
-//
-//        water /= 200;
-//        milk /= 50;
-//        coffeeBeans /= 15;
-//        int maxCupsCount = Math.min(Math.min(water, milk), coffeeBeans);
-//
-//        if (maxCupsCount < cupsCount) {
-//            System.out.printf("No, I can make only %d cup(s) of coffee", maxCupsCount);
-//        } else {
-//            System.out.print("Yes, I can make that amount of coffee ");
-//            if (maxCupsCount > cupsCount) {
-//                System.out.printf("(and even %d more than that)", maxCupsCount - cupsCount);
-//            }
-//        }
-        infoCoffeeMachine();
-        userAction();
-        infoCoffeeMachine();
+        while (!isExit) {
+            userAction();
+        }
 
     }
 
-    private static void userAction() {
-        System.out.println("Write action (buy, fill, take): ");
-        String action = scanner.nextLine();
+    private static void userAction() throws IOException {
+        System.out.println("Write action (buy, fill, take, remaining, exit): ");
+        String action = reader.readLine();
         switch (action) {
             case "buy":
                 buy();
@@ -54,31 +36,72 @@ public class CoffeeMachine {
             case "take":
                 take();
                 break;
+            case "remaining":
+                infoCoffeeMachine();
+                break;
+            case "exit":
+                isExit = true;
+                break;
         }
     }
 
-    private static void buy() {
+    private static void buy() throws IOException{
         System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: ");
-        switch (scanner.nextInt()) {
-            case 1:
-                countWater -= 250;
-                countCoffeeBeans -= 16;
-                countMoney += 4;
+        String s = reader.readLine();
+        switch (s) {
+            case "1":
+                doEspresso();
                 break;
-            case 2:
-                countWater-=350;
-                countMilk-=75;
-                countCoffeeBeans-=20;
-                countMoney+=7;
+            case "2":
+                doLatte();
                 break;
-            case 3:
-                countWater -=200;
-                countMilk -= 100;
-                countCoffeeBeans -=12;
-                countMoney +=6;
+            case "3":
+                doCappuccino();
+                break;
+            default:
+                disposableCups++;
                 break;
         }
         disposableCups--;
+    }
+
+    private static void doCappuccino() {
+        if (countWater >= 200 && countCoffeeBeans >= 12 && countMilk >= 100 && disposableCups > 0) {
+            countWater -= 200;
+            countMilk -= 100;
+            countCoffeeBeans -= 12;
+            countMoney += 6;
+            System.out.println("I have enough resources, making you a coffee!");
+        } else {
+            System.out.println("Sorry, not enough water!");
+            disposableCups++;
+        }
+
+    }
+
+    private static void doLatte() {
+        if (countWater >= 350 && countCoffeeBeans >= 20 && countMilk >= 75 && disposableCups > 0) {
+            countWater -= 350;
+            countMilk -= 75;
+            countCoffeeBeans -= 20;
+            countMoney += 7;
+            System.out.println("I have enough resources, making you a coffee!");
+        } else {
+            System.out.println("Sorry, not enough water!");
+            disposableCups++;
+        }
+    }
+
+    private static void doEspresso() {
+        if (countWater >= 250 && countCoffeeBeans >= 16 && disposableCups > 0) {
+            countWater -= 250;
+            countCoffeeBeans -= 16;
+            countMoney += 4;
+            System.out.println("I have enough resources, making you a coffee!");
+        } else {
+            System.out.println("Sorry, not enough water!");
+            disposableCups++;
+        }
     }
 
     private static void take() {
@@ -104,7 +127,7 @@ public class CoffeeMachine {
                         "%d of milk\n" +
                         "%d of coffee beans\n" +
                         "%d of disposable cups\n" +
-                        "%d of money",
+                        "$%d of money\n",
                 countWater, countMilk, countCoffeeBeans, disposableCups, countMoney);
 
     }
