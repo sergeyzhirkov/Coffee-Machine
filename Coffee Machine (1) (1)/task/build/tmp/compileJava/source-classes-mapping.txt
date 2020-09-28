@@ -1,2 +1,7 @@
+machine/Condition.java
+ machine.Condition
+machine/UserInput.java
+ machine.UserInput
 machine/CoffeeMachine.java
  machine.CoffeeMachine
+ machine.CoffeeMachine$1

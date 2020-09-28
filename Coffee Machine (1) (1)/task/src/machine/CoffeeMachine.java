@@ -6,38 +6,54 @@ import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class CoffeeMachine {
-    private static int countWater = 400;
-    private static int countMilk = 540;
-    private static int countCoffeeBeans = 120;
-    private static int disposableCups = 9;
-    private static int countMoney = 550;
-    private static Scanner scanner = new Scanner(System.in);
-    private static boolean isExit = false;
-    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    private int countWater = 400;
+    private int countMilk = 540;
+    private int countCoffeeBeans = 120;
+    private int disposableCups = 9;
+    private int countMoney = 550;
 
+    public boolean isExit = false;
+    public Condition status = Condition.INFO;
+
+    protected void inputStringData(String inputString) {
+        switch (status) {
+            case CHOOSE_ACTION:
+                userAction(inputString);
+                break;
+            case WANT_BUY:
+                buy(inputString);
+                break;
+            default:
+                fill(inputString);
+                break;
+
+        }
+    }
     public static void main(String[] args) throws IOException{
 
-        while (!isExit) {
-            userAction();
-        }
+        UserInput newUserInput = new UserInput();
+        newUserInput.userRun();
 
     }
 
-    private static void userAction() throws IOException {
-        System.out.println("Write action (buy, fill, take, remaining, exit): ");
-        String action = reader.readLine();
+    private void userAction(String action) {
+
         switch (action) {
             case "buy":
-                buy();
+                System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: ");
+                status = Condition.WANT_BUY;
                 break;
             case "fill":
-                fill();
+                System.out.println("Write how many ml of water do you want to add: ");
+                status = Condition.HOW_MUCH_WATER;
                 break;
             case "take":
                 take();
+                status = Condition.INFO;
                 break;
             case "remaining":
                 infoCoffeeMachine();
+                status = Condition.INFO;
                 break;
             case "exit":
                 isExit = true;
@@ -45,9 +61,7 @@ public class CoffeeMachine {
         }
     }
 
-    private static void buy() throws IOException{
-        System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: ");
-        String s = reader.readLine();
+    private void buy(String s) {
         switch (s) {
             case "1":
                 doEspresso();
@@ -63,9 +77,10 @@ public class CoffeeMachine {
                 break;
         }
         disposableCups--;
+        status = Condition.INFO;
     }
 
-    private static void doCappuccino() {
+    private void doCappuccino() {
         if (countWater >= 200 && countCoffeeBeans >= 12 && countMilk >= 100 && disposableCups > 0) {
             countWater -= 200;
             countMilk -= 100;
@@ -79,7 +94,7 @@ public class CoffeeMachine {
 
     }
 
-    private static void doLatte() {
+    private void doLatte() {
         if (countWater >= 350 && countCoffeeBeans >= 20 && countMilk >= 75 && disposableCups > 0) {
             countWater -= 350;
             countMilk -= 75;
@@ -92,7 +107,7 @@ public class CoffeeMachine {
         }
     }
 
-    private static void doEspresso() {
+    private void doEspresso() {
         if (countWater >= 250 && countCoffeeBeans >= 16 && disposableCups > 0) {
             countWater -= 250;
             countCoffeeBeans -= 16;
@@ -104,23 +119,42 @@ public class CoffeeMachine {
         }
     }
 
-    private static void take() {
+    private void take() {
         System.out.println("I gave you $" + countMoney);
         countMoney = 0;
     }
 
-    private static void fill() {
-        System.out.println("Write how many ml of water do you want to add: ");
-        countWater += scanner.nextInt();
-        System.out.println("Write how many ml of milk do you want to add: ");
-        countMilk += scanner.nextInt();
-        System.out.println("Write how many grams of coffee beans do you want to add: ");
-        countCoffeeBeans += scanner.nextInt();
-        System.out.println("Write how many disposable cups of coffee do you want to add: ");
-        disposableCups += scanner.nextInt();
+    private void fill(String s) {
+        if (status == Condition.HOW_MUCH_WATER) {
+
+            countWater += Integer.parseInt(s);
+            status = Condition.HOW_MUCH_MILK;
+            System.out.println("Write how many ml of milk do you want to add: ");
+            return;
+        }
+        if (status == Condition.HOW_MUCH_MILK) {
+
+            countMilk += Integer.parseInt(s);
+            status = Condition.HOW_MUCH_COFFEE;
+            System.out.println("Write how many grams of coffee beans do you want to add: ");
+            return;
+        }
+        if (status == Condition.HOW_MUCH_COFFEE) {
+
+            countCoffeeBeans += Integer.parseInt(s);
+            status = Condition.HOW_MANY_CUPS;
+            System.out.println("Write how many disposable cups of coffee do you want to add: ");
+            return;
+        }
+        if (status == Condition.HOW_MANY_CUPS) {
+
+            disposableCups += Integer.parseInt(s);
+            status = Condition.INFO;
+        }
+
     }
 
-    private static void infoCoffeeMachine() {
+    private void infoCoffeeMachine() {
         System.out.printf(
                 "The coffee machine has:\n" +
                         "%d of water\n" +
